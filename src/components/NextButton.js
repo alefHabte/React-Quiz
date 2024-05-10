@@ -3,7 +3,7 @@ function NextButton({ chosenOption, dispatch, index, numberOfQuestions }) {
   if (index + 1 === numberOfQuestions) {
     return (
       <button
-        className="btn ui"
+        className="btn btn ui"
         onClick={() => dispatch({ type: "finishQuestion" })}
       >
         Finished

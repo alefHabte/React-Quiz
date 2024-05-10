@@ -8,6 +8,9 @@ import Question from "./Question";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
 import FinishedScreen from "./FinishedScreen";
+import Timer from "./Timer";
+
+const SEC_PER_QUESTION = 30;
 
 const initialState = {
   questions: [],
@@ -18,24 +21,35 @@ const initialState = {
   chosenOption: null,
   points: 0,
   highScore: 0,
+  setTimer: null,
 };
 function reducer(state, action) {
   switch (action.type) {
-    case "dataReceived":
-      return { ...state, questions: action.payload, status: "ready" };
     case "dataFailed":
       return { ...state, status: "error" };
     case "showQuestion":
-      return { ...state, status: "active" };
+      return {
+        ...state,
+        status: "active",
+        setTimer: state.questions.length * SEC_PER_QUESTION,
+      };
     case "showCorrectOption":
       const question = state.questions.at(state.index);
       const isCorrectQuestion = action.payload === question.correctOption;
+
       return {
         ...state,
         chosenOption: action.payload,
         points: isCorrectQuestion
           ? state.points + question.points
           : state.points,
+      };
+
+    case "dataReceived":
+      return {
+        ...state,
+        questions: action.payload,
+        status: "ready",
       };
 
     case "NextQuestion":
@@ -47,6 +61,18 @@ function reducer(state, action) {
         highScore:
           state.points > state.highScore ? state.points : state.highScore,
       };
+    case "RestartQuiz":
+      return {
+        ...initialState,
+        questions: state.questions,
+        status: "ready",
+      };
+    case "tik":
+      return {
+        ...state,
+        setTimer: state.setTimer - 1,
+        status: state.setTimer === 0 ? "finished" : state.status,
+      };
 
     default:
       throw new Error("Invalid Action");
@@ -55,7 +81,7 @@ function reducer(state, action) {
 
 function App() {
   const [
-    { questions, status, index, chosenOption, points, highScore },
+    { questions, status, index, chosenOption, points, highScore, setTimer },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -82,6 +108,7 @@ function App() {
             maxPoints={maxPoints}
             points={points}
             highScore={highScore}
+            dispatch={dispatch}
           />
         )}
         {status === "loading" && <Loader />}
@@ -106,12 +133,15 @@ function App() {
               dispatch={dispatch}
               question={questions[index]}
             />
-            <NextButton
-              dispatch={dispatch}
-              chosenOption={chosenOption}
-              index={index}
-              numberOfQuestions={numberOfQuestion}
-            />
+            <footer>
+              <Timer setTimer={setTimer} dispatch={dispatch} />
+              <NextButton
+                dispatch={dispatch}
+                chosenOption={chosenOption}
+                index={index}
+                numberOfQuestions={numberOfQuestion}
+              />
+            </footer>
           </>
         )}
       </main>
