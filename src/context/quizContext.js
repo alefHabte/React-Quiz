@@ -72,7 +72,7 @@ function reducer(state, action) {
 
 function QuizProvider({ children }) {
   useEffect(() => {
-    fetch("http://localhost:8000/questions")
+    fetch("https://alefhabte.github.io/Quiz-Data/questions.json")
       .then((res) => {
         return res.json();
       })
