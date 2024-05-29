@@ -1,8 +1,6 @@
 import { useEffect } from "react";
-import { useQuiz } from "../context/quizContext";
 
-function Timer() {
-  const { setTimer, dispatch } = useQuiz();
+function Timer({ setTimer, dispatch }) {
   const min = Math.floor(setTimer / 60);
   const sec = setTimer % 60;
   useEffect(() => {
